@@ -279,7 +279,7 @@ const subscribeToGifts = () => {
 document.querySelector("#secretPaw").addEventListener("click", () => {
   const now = Date.now();
   state.pawClicks = [...state.pawClicks.filter((time) => now - time < 1800), now];
-  if (state.pawClicks.length >= 2) {
+  if (state.pawClicks.length >= 4) {
     state.pawClicks = [];
     openModal(passwordModal);
     adminPasswordInput.focus();
