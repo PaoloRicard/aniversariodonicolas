@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lista de Presentes do Nicolas</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="sky-scene" aria-hidden="true">
+      <span class="cloud cloud-one"></span>
+      <span class="cloud cloud-two"></span>
+      <span class="cloud cloud-three"></span>
+      <span class="leaf leaf-one">🌿</span>
+      <span class="leaf leaf-two">🌴</span>
+      <span class="leaf leaf-three">🍃</span>
+      <span class="volcano">🌋</span>
+      <span class="track track-one">🐾</span>
+      <span class="track track-two">🐾</span>
+      <span class="track track-three">🐾</span>
+    </div>
+
+    <main class="page-shell">
+      <header class="hero">
+        <div class="hero-badge" aria-hidden="true">🦖</div>
+        <p class="hero-kicker">Aniversário de 1 ano</p>
+        <h1>
+          Lista de Presentes
+          <span>do Nicolas</span>
+        </h1>
+        <p class="hero-subtitle">
+          Escolha um presente para reservar. Depois de reservado ele ficará
+          indisponível para outras pessoas.
+        </p>
+
+        <section class="progress-card" aria-live="polite">
+          <div>
+            <strong id="progressText">0 de 0 presentes reservados</strong>
+            <span>Obrigado por fazer parte desse momento.</span>
+          </div>
+          <div class="progress-track" aria-hidden="true">
+            <div id="progressFill" class="progress-fill"></div>
+          </div>
+        </section>
+      </header>
+
+      <section id="setupNotice" class="setup-notice hidden">
+        Configure suas credenciais do Firebase no arquivo
+        <strong>firebase.js</strong> para carregar a lista em tempo real.
+      </section>
+
+      <section id="giftList" class="gift-list" aria-live="polite"></section>
+
+      <section id="emptyState" class="empty-state hidden">
+        <span>🦕</span>
+        <strong>Nenhum presente cadastrado ainda.</strong>
+        <p>Entre no modo administrador para adicionar os primeiros itens.</p>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <button id="secretPaw" class="secret-paw" type="button" aria-label="Decoração de pegada">
+        🐾
+      </button>
+    </footer>
+
+    <button id="adminFloat" class="admin-float hidden" type="button">
+      ⚙ Administração
+    </button>
+
+    <div id="reserveModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="reserveTitle">
+      <form id="reserveForm" class="modal-card">
+        <button class="modal-close" type="button" data-close-modal aria-label="Fechar">×</button>
+        <span class="modal-icon">🦕</span>
+        <h2 id="reserveTitle">Confirmar reserva</h2>
+        <p id="reserveGiftName"></p>
+        <label>
+          Seu nome
+          <input id="guestName" type="text" autocomplete="name" minlength="2" required />
+        </label>
+        <label>
+          WhatsApp
+          <input id="guestPhone" type="tel" inputmode="tel" autocomplete="tel" minlength="8" required />
+        </label>
+        <button class="primary-button" type="submit">Reservar presente</button>
+      </form>
+    </div>
+
+    <div id="passwordModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="passwordTitle">
+      <form id="passwordForm" class="modal-card compact">
+        <button class="modal-close" type="button" data-close-modal aria-label="Fechar">×</button>
+        <span class="modal-icon">🐾</span>
+        <h2 id="passwordTitle">Modo administrador</h2>
+        <label>
+          Senha
+          <input id="adminPassword" type="password" autocomplete="current-password" required />
+        </label>
+        <button class="primary-button" type="submit">Entrar</button>
+      </form>
+    </div>
+
+    <aside id="adminPanel" class="admin-panel" aria-label="Painel de administração">
+      <div class="panel-header">
+        <div>
+          <span>🦖</span>
+          <h2>Administração</h2>
+        </div>
+        <button id="closeAdmin" class="icon-button" type="button" aria-label="Fechar painel">×</button>
+      </div>
+
+      <form id="addGiftForm" class="admin-form">
+        <label>
+          Novo presente
+          <input id="newGiftName" type="text" placeholder="Ex: Fraldas M" minlength="2" required />
+        </label>
+        <button class="primary-button" type="submit">Adicionar</button>
+        <button id="seedGiftsButton" class="secondary-button" type="button">Adicionar lista sugerida</button>
+      </form>
+
+      <div class="panel-divider"></div>
+      <div id="adminList" class="admin-list"></div>
+    </aside>
+
+    <div id="panelScrim" class="panel-scrim hidden"></div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script type="module" src="script.js"></script>
+  </body>
+</html>
