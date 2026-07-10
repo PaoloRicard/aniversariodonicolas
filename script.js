@@ -14,29 +14,6 @@ import {
 
 const giftIcons = ["🧸", "🚼", "🍼", "👕", "🧦", "🛁", "🦖", "📚", "🧩", "🛏️", "🧴", "🎁"];
 const adminPassword = "nicolas2026";
-const suggestedGifts = [
-  "Fraldas M",
-  "Fraldas G",
-  "Fraldas XG",
-  "Lenços umedecidos",
-  "Kit banho",
-  "Toalha com capuz",
-  "Sabonete líquido infantil",
-  "Shampoo infantil",
-  "Hidratante infantil",
-  "Pomada para assaduras",
-  "Mamadeira",
-  "Copo de transição",
-  "Prato infantil",
-  "Talheres infantis",
-  "Babadores",
-  "Body infantil",
-  "Pijama infantil",
-  "Conjunto de roupa",
-  "Meias antiderrapantes",
-  "Livro infantil",
-  "Brinquedo educativo"
-];
 
 const state = {
   gifts: [],
@@ -59,7 +36,6 @@ const adminPanel = document.querySelector("#adminPanel");
 const panelScrim = document.querySelector("#panelScrim");
 const addGiftForm = document.querySelector("#addGiftForm");
 const newGiftName = document.querySelector("#newGiftName");
-const seedGiftsButton = document.querySelector("#seedGiftsButton");
 
 const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({
   "&": "&amp;",
@@ -227,24 +203,6 @@ addGiftForm.addEventListener("submit", async (event) => {
   await addGift(newGiftName.value);
   addGiftForm.reset();
   showToast("🎁 Presente adicionado.");
-});
-
-seedGiftsButton.addEventListener("click", async () => {
-  const existingNames = new Set(state.gifts.map((gift) => gift.nome.toLowerCase().trim()));
-  const giftsToCreate = suggestedGifts.filter((name) => !existingNames.has(name.toLowerCase()));
-
-  if (!giftsToCreate.length) {
-    showToast("A lista sugerida já foi adicionada.");
-    return;
-  }
-
-  seedGiftsButton.disabled = true;
-  try {
-    await Promise.all(giftsToCreate.map((name) => addGift(name)));
-    showToast("🦖 Lista sugerida adicionada.");
-  } finally {
-    seedGiftsButton.disabled = false;
-  }
 });
 
 adminFloat.addEventListener("click", openAdminPanel);
