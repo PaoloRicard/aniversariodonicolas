@@ -3,8 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Presentes do Nicolas</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦖</text></svg>" />
+    <title>Lista de Presentes do Nicolas</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -30,19 +29,9 @@
           <span>do Nicolas</span>
         </h1>
         <p class="hero-subtitle">
-          Escolha um presente para reservar. Depois de reservado ele ficará
-          indisponível para outras pessoas.
+          Confira a lista de presentes escolhida para o Nicolas.
         </p>
 
-        <section class="progress-card" aria-live="polite">
-          <div>
-            <strong id="progressText">0 de 0 presentes reservados</strong>
-            <span>Obrigado por fazer parte desse momento.</span>
-          </div>
-          <div class="progress-track" aria-hidden="true">
-            <div id="progressFill" class="progress-fill"></div>
-          </div>
-        </section>
       </header>
 
       <section id="setupNotice" class="setup-notice hidden">
@@ -68,24 +57,6 @@
     <button id="adminFloat" class="admin-float hidden" type="button">
       ⚙ Administração
     </button>
-
-    <div id="reserveModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="reserveTitle">
-      <form id="reserveForm" class="modal-card">
-        <button class="modal-close" type="button" data-close-modal aria-label="Fechar">×</button>
-        <span class="modal-icon">🦕</span>
-        <h2 id="reserveTitle">Confirmar reserva</h2>
-        <p id="reserveGiftName"></p>
-        <label>
-          Seu nome
-          <input id="guestName" type="text" autocomplete="name" minlength="2" required />
-        </label>
-        <label>
-          WhatsApp
-          <input id="guestPhone" type="tel" inputmode="tel" autocomplete="tel" minlength="8" required />
-        </label>
-        <button class="primary-button" type="submit">Reservar presente</button>
-      </form>
-    </div>
 
     <div id="passwordModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="passwordTitle">
       <form id="passwordForm" class="modal-card compact">

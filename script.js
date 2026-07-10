@@ -8,7 +8,6 @@ import {
   onSnapshot,
   orderBy,
   query,
-  runTransaction,
   serverTimestamp,
   updateDoc
 } from "./firebase.js";
@@ -42,7 +41,6 @@ const suggestedGifts = [
 const state = {
   gifts: [],
   isAdmin: false,
-  selectedGiftId: null,
   pawClicks: []
 };
 
@@ -50,15 +48,7 @@ const giftList = document.querySelector("#giftList");
 const adminList = document.querySelector("#adminList");
 const emptyState = document.querySelector("#emptyState");
 const setupNotice = document.querySelector("#setupNotice");
-const progressText = document.querySelector("#progressText");
-const progressFill = document.querySelector("#progressFill");
 const toast = document.querySelector("#toast");
-
-const reserveModal = document.querySelector("#reserveModal");
-const reserveForm = document.querySelector("#reserveForm");
-const reserveGiftName = document.querySelector("#reserveGiftName");
-const guestName = document.querySelector("#guestName");
-const guestPhone = document.querySelector("#guestPhone");
 
 const passwordModal = document.querySelector("#passwordModal");
 const passwordForm = document.querySelector("#passwordForm");
@@ -78,8 +68,6 @@ const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => 
   '"': "&quot;",
   "'": "&#039;"
 })[char]);
-
-const formatPhone = (value) => value.replace(/\D/g, "");
 
 const getGiftIcon = (name, index) => {
   const lowerName = name.toLowerCase();
@@ -110,9 +98,7 @@ const openModal = (modal) => {
 const closeModals = () => {
   document.querySelectorAll(".modal-backdrop").forEach((modal) => modal.classList.add("hidden"));
   document.body.classList.remove("modal-open");
-  reserveForm.reset();
   passwordForm.reset();
-  state.selectedGiftId = null;
 };
 
 const openAdminPanel = () => {
@@ -125,56 +111,31 @@ const closeAdminPanel = () => {
   panelScrim.classList.add("hidden");
 };
 
-const updateProgress = () => {
-  const total = state.gifts.length;
-  const reserved = state.gifts.filter((gift) => gift.reservado).length;
-  const percent = total ? Math.round((reserved / total) * 100) : 0;
-
-  progressText.textContent = `${reserved} de ${total} presentes reservados`;
-  progressFill.style.width = `${percent}%`;
-};
-
 const renderGifts = () => {
   giftList.innerHTML = "";
   state.gifts.forEach((gift, index) => {
     const safeName = escapeHtml(gift.nome);
     const card = document.createElement("article");
-    card.className = `gift-card ${gift.reservado ? "reserved" : ""}`;
+    card.className = "gift-card";
     card.style.animationDelay = `${Math.min(index * 45, 500)}ms`;
 
     card.innerHTML = `
       <div class="gift-icon">${getGiftIcon(gift.nome, index)}</div>
       <div class="gift-content">
         <h2>${safeName}</h2>
-        <span class="reserved-seal">🦖 Reservado</span>
       </div>
-      <button class="reserve-button" type="button" ${gift.reservado ? "disabled" : ""}>
-        <span class="check-dot">${gift.reservado ? "✓" : ""}</span>
-        ${gift.reservado ? "Reservado" : "Reservar"}
-      </button>
     `;
-
-    card.querySelector(".reserve-button").addEventListener("click", () => {
-      if (gift.reservado) return;
-      state.selectedGiftId = gift.id;
-      reserveGiftName.textContent = gift.nome;
-      openModal(reserveModal);
-      guestName.focus();
-    });
 
     giftList.appendChild(card);
   });
 
   emptyState.classList.toggle("hidden", state.gifts.length !== 0);
-  updateProgress();
 };
 
 const renderAdminList = () => {
   adminList.innerHTML = "";
   state.gifts.forEach((gift, index) => {
     const safeName = escapeHtml(gift.nome);
-    const safeReservedBy = escapeHtml(gift.reservadoPor || "");
-    const safePhone = escapeHtml(gift.telefone || "");
     const item = document.createElement("article");
     item.className = "admin-item";
     item.innerHTML = `
@@ -186,50 +147,22 @@ const renderAdminList = () => {
         Nome do presente
         <input class="admin-name-input" type="text" value="${safeName}" />
       </label>
-      <div class="guest-info ${gift.reservadoPor ? "" : "hidden"}">
-        <span>Reservado por: <strong>${safeReservedBy}</strong></span>
-        <span>WhatsApp: <strong>${safePhone}</strong></span>
-      </div>
       <div class="admin-actions">
         <button type="button" data-action="save">Salvar</button>
-        <button type="button" data-action="toggle">${gift.reservado ? "Desmarcar" : "Marcar reservado"}</button>
         <button type="button" data-action="delete" class="danger">Excluir</button>
       </div>
     `;
 
     const input = item.querySelector(".admin-name-input");
     item.querySelector('[data-action="save"]').addEventListener("click", () => updateGiftName(gift.id, input.value));
-    item.querySelector('[data-action="toggle"]').addEventListener("click", () => toggleGiftReservation(gift));
     item.querySelector('[data-action="delete"]').addEventListener("click", () => deleteGift(gift.id, gift.nome));
     adminList.appendChild(item);
-  });
-};
-
-const reserveGift = async ({ giftId, name, phone }) => {
-  const giftRef = doc(db, "presentes", giftId);
-
-  await runTransaction(db, async (transaction) => {
-    const giftSnapshot = await transaction.get(giftRef);
-    if (!giftSnapshot.exists()) throw new Error("Este presente não existe mais.");
-    if (giftSnapshot.data().reservado) throw new Error("Este presente acabou de ser reservado por outra pessoa.");
-
-    transaction.update(giftRef, {
-      reservado: true,
-      reservadoPor: name.trim(),
-      telefone: formatPhone(phone),
-      dataReserva: new Date().toISOString(),
-      atualizadoEm: serverTimestamp()
-    });
   });
 };
 
 const addGift = async (name) => {
   await addDoc(collection(db, "presentes"), {
     nome: name.trim(),
-    reservado: false,
-    reservadoPor: "",
-    telefone: "",
-    dataReserva: "",
     criadoEm: serverTimestamp(),
     atualizadoEm: serverTimestamp()
   });
@@ -242,17 +175,6 @@ const updateGiftName = async (giftId, name) => {
     atualizadoEm: serverTimestamp()
   });
   showToast("🦖 Presente atualizado.");
-};
-
-const toggleGiftReservation = async (gift) => {
-  const reserved = !gift.reservado;
-  await updateDoc(doc(db, "presentes", gift.id), {
-    reservado: reserved,
-    reservadoPor: reserved ? gift.reservadoPor || "Administrador" : "",
-    telefone: reserved ? gift.telefone || "" : "",
-    dataReserva: reserved ? gift.dataReserva || new Date().toISOString() : "",
-    atualizadoEm: serverTimestamp()
-  });
 };
 
 const deleteGift = async (giftId, giftName) => {
@@ -279,7 +201,7 @@ const subscribeToGifts = () => {
 document.querySelector("#secretPaw").addEventListener("click", () => {
   const now = Date.now();
   state.pawClicks = [...state.pawClicks.filter((time) => now - time < 1800), now];
-  if (state.pawClicks.length >= 4) {
+  if (state.pawClicks.length >= 2) {
     state.pawClicks = [];
     openModal(passwordModal);
     adminPasswordInput.focus();
@@ -298,26 +220,6 @@ passwordForm.addEventListener("submit", (event) => {
   renderAdminList();
   closeModals();
   showToast("🦖 Modo administrador ativado.");
-});
-
-reserveForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const submitButton = reserveForm.querySelector("button[type='submit']");
-  submitButton.disabled = true;
-
-  try {
-    await reserveGift({
-      giftId: state.selectedGiftId,
-      name: guestName.value,
-      phone: guestPhone.value
-    });
-    closeModals();
-    showToast("🦕 Você reservou este presente!<br>Obrigado ❤️", true);
-  } catch (error) {
-    showToast(error.message);
-  } finally {
-    submitButton.disabled = false;
-  }
 });
 
 addGiftForm.addEventListener("submit", async (event) => {
